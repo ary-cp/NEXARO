@@ -1,26 +1,527 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
+/* ============================================
+   CSS CUSTOM PROPERTIES — DESIGN SYSTEM
+   ============================================ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Color Palette */
+  --arctic-powder: #F1F6F4;
+  --mystic-mint: #D9E8E2;
+  --forsythia: #FFC801;
+  --deep-saffron: #FF9932;
+  --nocturnal: #114C5A;
+  --oceanic-noir: #172B36;
+
+  /* Gradients */
+  --gradient-accent: linear-gradient(135deg, var(--forsythia) 0%, var(--deep-saffron) 100%);
+  --gradient-dark: linear-gradient(180deg, var(--oceanic-noir) 0%, #0d1f28 100%);
+  --gradient-card: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
+
+  /* Typography — next/font variables fall back to Google Fonts CDN */
+  --font-mono: var(--font-jetbrains), 'JetBrains Mono', 'Courier New', monospace;
+  --font-body: var(--font-inter), 'Inter', system-ui, sans-serif;
+
+  /* Spacing */
+  --section-padding: clamp(4rem, 8vw, 8rem);
+
+  /* Timing — Motion Spec */
+  --ease-micro: 175ms ease-out;        /* hovers, toggles */
+  --ease-structural: 350ms ease-in-out; /* layout reflows, accordions */
+  --ease-entry: 500ms ease-out;        /* page entry */
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ============================================
+   BASE RESET & TYPOGRAPHY
+   ============================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body);
+  background-color: var(--oceanic-noir);
+  color: var(--arctic-powder);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-mono);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+/* ============================================
+   ENTRY ANIMATIONS (< 500ms total budget)
+   ============================================ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-32px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes tickerScroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 200, 1, 0); }
+  50%       { box-shadow: 0 0 32px 8px rgba(255, 200, 1, 0.2); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-12px); }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes drawLine {
+  from { stroke-dashoffset: 1000; }
+  to   { stroke-dashoffset: 0; }
+}
+
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Scroll-triggered reveal */
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 400ms ease-out, transform 400ms ease-out;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-delay-1 { transition-delay: 100ms; }
+.reveal-delay-2 { transition-delay: 200ms; }
+.reveal-delay-3 { transition-delay: 300ms; }
+
+/* ============================================
+   LAYOUT UTILITIES
+   ============================================ */
+.section-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 clamp(1.5rem, 4vw, 4rem);
+}
+
+.section-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--forsythia);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.section-label::before {
+  content: '';
+  display: inline-block;
+  width: 20px;
+  height: 2px;
+  background: var(--forsythia);
+  border-radius: 2px;
+}
+.section-label::after {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border: 2px solid var(--forsythia);
+  border-radius: 50%;
+}
+
+/* ============================================
+   BUTTON STYLES
+   ============================================ */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  background: var(--forsythia);
+  color: var(--oceanic-noir);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.875rem;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background var(--ease-micro), transform var(--ease-micro), box-shadow var(--ease-micro);
+  will-change: transform;
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+}
+.btn-primary:hover {
+  background: var(--deep-saffron);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(255, 200, 1, 0.3);
+}
+.btn-primary:active { transform: translateY(0); }
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  background: transparent;
+  color: var(--arctic-powder);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 0.875rem;
+  border: 1px solid rgba(241, 246, 244, 0.2);
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color var(--ease-micro), color var(--ease-micro), background var(--ease-micro);
+}
+.btn-outline:hover {
+  border-color: var(--forsythia);
+  color: var(--forsythia);
+  background: rgba(255, 200, 1, 0.05);
+}
+
+/* ============================================
+   CARD STYLES
+   ============================================ */
+.glass-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  transition: background var(--ease-micro), border-color var(--ease-micro), transform var(--ease-micro);
+}
+.glass-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 200, 1, 0.25);
+  transform: translateY(-4px);
+}
+
+/* ============================================
+   ACCORDION STYLES (Feature 2)
+   ============================================ */
+.accordion-panel .accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height var(--ease-structural), opacity var(--ease-structural);
+}
+.accordion-panel.open .accordion-content {
+  max-height: 600px;
+  opacity: 1;
+}
+.accordion-panel .accordion-icon {
+  transition: transform var(--ease-micro);
+}
+.accordion-panel.open .accordion-icon {
+  transform: rotate(180deg);
+}
+
+/* ============================================
+   PRICING SECTION (Feature 1)
+   ============================================ */
+.pricing-toggle-track {
+  width: 48px;
+  height: 26px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 999px;
+  position: relative;
+  cursor: pointer;
+  transition: background var(--ease-micro);
+  border: 1px solid rgba(255,255,255,0.15);
+}
+.pricing-toggle-track.active {
+  background: rgba(255, 200, 1, 0.25);
+  border-color: var(--forsythia);
+}
+.pricing-toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  background: var(--arctic-powder);
+  border-radius: 50%;
+  transition: transform var(--ease-micro), background var(--ease-micro);
+  will-change: transform;
+}
+.pricing-toggle-track.active .pricing-toggle-thumb {
+  transform: translateX(22px);
+  background: var(--forsythia);
+}
+
+.currency-btn {
+  padding: 0.375rem 0.875rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid rgba(17,76,90,0.2);
+  background: transparent;
+  color: rgba(23,43,54,0.55);
+  cursor: pointer;
+  transition: all var(--ease-micro);
+  border-radius: 4px;
+}
+.currency-btn.active {
+  background: var(--oceanic-noir);
+  color: var(--forsythia);
+  border-color: var(--oceanic-noir);
+}
+.currency-btn:hover:not(.active) {
+  border-color: var(--oceanic-noir);
+  color: var(--oceanic-noir);
+}
+
+/* Pricing toggle track on light bg */
+.pricing-toggle-track {
+  background: rgba(17,76,90,0.12);
+  border-color: rgba(17,76,90,0.2);
+}
+.pricing-toggle-track.active {
+  background: rgba(255, 200, 1, 0.35);
+  border-color: var(--forsythia);
+}
+.pricing-toggle-thumb {
+  background: var(--oceanic-noir);
+}
+
+/* ============================================
+   TICKER
+   ============================================ */
+.ticker-track {
+  display: flex;
+  gap: 4rem;
+  width: max-content;
+  animation: tickerScroll 28s linear infinite;
+}
+.ticker-track:hover { animation-play-state: paused; }
+
+/* ============================================
+   BENTO TABS (Feature 2 — Desktop)
+   ============================================ */
+.bento-tab-btn:hover {
+  color: var(--arctic-powder) !important;
+}
+.bento-tab-btn.tab-active {
+  color: var(--forsythia) !important;
+  border-bottom-color: var(--forsythia) !important;
+}
+.bento-tab-panel.tab-panel-active {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+  pointer-events: auto !important;
+}
+
+/* ============================================
+   BENTO GRID (Feature 2 — Desktop)
+   ============================================ */
+.bento-grid {
+  display: block;
+}
+
+/* Legacy classes kept for safety if referenced */
+.bento-cell-wide  { grid-column: span 7; }
+.bento-cell-mid   { grid-column: span 5; }
+.bento-cell-third { grid-column: span 4; }
+
+.bento-card {
+  border-radius: 12px;
+  padding: 1.75rem;
+  cursor: pointer;
+  transition: background var(--ease-micro), border-color var(--ease-micro), transform 200ms ease-out;
+  will-change: transform;
+}
+.bento-card.active,
+.bento-card:hover {
+  border-color: rgba(255, 200, 1, 0.4) !important;
+  background: rgba(255, 200, 1, 0.05) !important;
+  transform: scale(1.02);
+}
+
+/* ============================================
+   GAUGE CHART (Performance Section)
+   ============================================ */
+.gauge-ring {
+  stroke-linecap: round;
+  transition: stroke-dasharray 800ms ease-out;
+}
+
+/* ============================================
+   SCROLLBAR
+   ============================================ */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--oceanic-noir); }
+::-webkit-scrollbar-thumb { background: rgba(255,200,1,0.3); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--forsythia); }
+
+/* ============================================
+   MOBILE RESPONSIVE OVERRIDES
+   ============================================ */
+@media (max-width: 767px) {
+  .bento-grid { display: none; }
+  .bento-accordion { display: block; }
+
+  /* Stack inline grids on mobile */
+  .hero-grid { grid-template-columns: 1fr !important; gap: 2rem !important; }
+  .case-row { grid-template-columns: 80px 1fr 32px !important; gap: 1rem !important; padding: 1.25rem 0 !important; }
+  .case-row > .case-logo { display: none !important; }
+  .case-row > .case-year { font-size: 0.6rem !important; }
+  .feat-mock-grid { grid-template-columns: 1fr !important; }
+  .footer-newsletter-grid { grid-template-columns: 1fr !important; gap: 1.5rem !important; }
+  .footer-link-grid { grid-template-columns: 1fr 1fr !important; gap: 2rem !important; }
+  .pricing-grid { grid-template-columns: 1fr !important; }
+  .nav-cta-desktop { display: none !important; }
+  .long-term-grid { grid-template-columns: 1fr !important; gap: 2rem !important; }
+}
+@media (min-width: 768px) {
+  .bento-grid { display: block; }
+  .bento-accordion { display: none; }
+}
+@media (max-width: 480px) {
+  .section-container { padding: 0 1.25rem; }
+  h1 { font-size: 2.25rem !important; }
+  h2 { font-size: 1.65rem !important; }
+}
+
+/* ============================================
+   DOT GRID TEXTURE
+   ============================================ */
+.dot-grid {
+  background-image: radial-gradient(circle, rgba(241,246,244,0.08) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* ============================================
+   SELECTION
+   ============================================ */
+::selection {
+  background: var(--forsythia);
+  color: var(--oceanic-noir);
+}
+
+/* ============================================
+   SPLASH LOADER (≤300ms, total budget ≤500ms)
+   ============================================ */
+.splash-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  background: var(--oceanic-noir);
+  opacity: 1;
+  transition: opacity 280ms ease-out, visibility 280ms ease-out;
+  will-change: opacity;
+}
+.splash-loader--gone {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.splash-loader__bolt {
+  animation: splashPulse 700ms ease-in-out infinite alternate;
+}
+.splash-loader__bar {
+  width: 140px;
+  height: 2px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+.splash-loader__bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, var(--forsythia), var(--deep-saffron));
+  transform-origin: left center;
+  animation: splashBar 320ms ease-out forwards;
+}
+.splash-loader__brand {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.4em;
+  color: rgba(241,246,244,0.55);
+}
+@keyframes splashPulse {
+  from { transform: scale(1); opacity: 0.85; }
+  to   { transform: scale(1.08); opacity: 1; }
+}
+@keyframes splashBar {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+/* ============================================
+   ACCESSIBILITY — SKIP LINK
+   ============================================ */
+.skip-link {
+  position: absolute;
+  top: -64px;
+  left: 16px;
+  background: var(--forsythia);
+  color: var(--oceanic-noir);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  z-index: 9999;
+  text-decoration: none;
+  transition: top 150ms ease-out;
+}
+.skip-link:focus {
+  top: 16px;
+  outline: 2px solid var(--arctic-powder);
+}
+
+/* Reduced motion override */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
